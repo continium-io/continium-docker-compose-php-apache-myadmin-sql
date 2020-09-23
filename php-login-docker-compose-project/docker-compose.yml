@@ -1,0 +1,48 @@
+version: "3.2"
+services:
+  php:
+    build: 
+      context: .
+    image: continium/firat-php-mysql-demo:1.0
+    networks:
+      - frontend
+      - backend
+    environment:
+      - MYSQL_HOST=continium-mysql-app
+      - MYSQL_USER=firatuser
+      - MYSQL_PASSWORD=firatpass
+      - MYSQL_DB=firat_db
+    volumes:
+      - ./www/:/var/www/html/
+    ports:
+      - "8880:80"
+    container_name: continium-php-app
+  mysql:
+    image: mysql:5.7
+    networks:
+      - backend
+    environment:
+      - MYSQL_ROOT_PASSWORD=rootpassword
+      - MYSQL_USER=firatuser
+      - MYSQL_PASSWORD=firatpass 
+      - MYSQL_DATABASE=firat_db
+    volumes:
+      - ./database/users.sql:/docker-entrypoint-initdb.d/users.sql
+    container_name: continium-mysql-app
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:4.7
+    depends_on:
+      - mysql
+    networks:
+      - backend
+    ports:
+      - "8881:80"
+    environment:
+      - PMA_HOST=continium-mysql-app
+      - PMA_PORT= 3306
+    volumes:
+      - /sessions
+    container_name: continium-phpmyadmin-app
+networks:
+  frontend:
+  backend:
